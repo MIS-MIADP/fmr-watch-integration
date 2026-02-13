@@ -25,8 +25,12 @@ export async function GET() {
           description: "Local development",
         },
         {
+          url: "https://miadp-fmr-integration.vercel.app",
+          description: "Vercel Production",
+        },
+        {
           url: "https://fmr-integration.miadp.ph",
-          description: "Production",
+          description: "MIADP Production Server",
         },
       ],
       components: {
