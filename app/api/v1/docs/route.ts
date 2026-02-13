@@ -15,8 +15,8 @@ export async function GET() {
           "API service providing secure, key-based access for MIAPD ↔ FMR Watch integration. " +
           "All endpoints require authentication via `x-api-key` header.",
         contact: {
-          name: "API Support",
-          // email: "support@yourcompany.com",   // optional
+          name: "MIADP MIS Team",
+          email: "mis.miadp@gmail.com",  
         },
       },
       servers: [
