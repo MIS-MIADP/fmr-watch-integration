@@ -1,11 +1,11 @@
 import { createSwaggerSpec } from "next-swagger-doc";
 import { NextResponse } from "next/server";
+import path from "path";
 
 export async function GET() {
   const spec = createSwaggerSpec({
-    // Changed to scan only v1 folder
-    apiFolder: "app/api/v1",
-
+    apiFolder: path.join("app", "api", "v1"),
+    apiFilePattern: "**/*.ts",
     definition: {
       openapi: "3.0.0",
       info: {
