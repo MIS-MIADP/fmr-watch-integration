@@ -2,20 +2,25 @@
   "name": "fmr-watch-integration",
   "version": "0.1.0",
   "private": true,
+  "prisma": {
+    "schema": ".config/prisma/schema.prisma"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed": "npx prisma db seed"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.4.0",
     "@prisma/client": "^7.4.0",
     "@types/swagger-ui-react": "^5.18.0",
+    "csv-parser": "^3.2.0",
     "dotenv": "^17.3.1",
     "next": "16.1.6",
     "next-swagger-doc": "^0.4.1",
-    "pg": "^8.18.0",
+    "r": "^0.0.5",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "swagger-ui-react": "^5.31.0"
@@ -30,6 +35,7 @@
     "eslint-config-next": "16.1.6",
     "prisma": "^7.4.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }

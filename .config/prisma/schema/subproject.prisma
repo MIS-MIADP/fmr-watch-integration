@@ -1,0 +1,47 @@
+model Subproject {
+  id                    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  // Identification
+  code                  String   @unique // Subproject ID
+  title                 String
+
+  // Domain Information
+  ancestralDomain       String?  // name of CADT area
+  cadtNumber            String?
+  location              String?
+
+  // Description
+  description           String?  @db.Text
+  scopeOfWorks          String?  @db.Text
+
+  // Physical Details
+  targetLength          Decimal? @db.Decimal(12,2)
+  unitOfMeasure         String?
+
+  // Funding
+  sourceOfFund          String?
+  yearFunded            Int?
+  totalBudget           Decimal? @db.Decimal(15,2)
+  approvedBudget        Decimal? @db.Decimal(15,2)
+
+  // Implementation
+  implementingAgency    String?
+  contractor            String?
+
+  // GIS (for maps)
+  latitude              Decimal? @db.Decimal(10,7)
+  longitude             Decimal? @db.Decimal(10,7)
+
+  // Timeline
+  duration              Int?     // number of days
+  startDate             DateTime?
+  targetCompletionDate  DateTime?
+  actualCompletionDate  DateTime?
+
+  // Status
+  status                String? @default("Planned")
+
+  // System
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
