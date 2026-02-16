@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { withApiKey } from "@/lib/api-key-middleware";
 import { prisma } from "@/lib/prisma";
+import { withCors } from "@/lib/cors";
 
 /**
  * @swagger
@@ -174,12 +175,14 @@ export async function GET(request: Request) {
     });
 
     // 3. Return the response
-    return NextResponse.json({
+     return withCors(
+    NextResponse.json({
       success: true,
       count: subprojects.length,
       timestamp: new Date().toISOString(),
       data: subprojects,
-    });
+    })
+    );
     
   } catch (error) {
     console.error("Database Error:", error);
@@ -188,4 +191,7 @@ export async function GET(request: Request) {
       { status: 500 }
     );
   }
+}
+export async function OPTIONS() {
+  return withCors(new NextResponse(null, { status: 204 }));
 }

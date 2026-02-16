@@ -1,11 +1,12 @@
+import { withCors } from "@/lib/cors";
 import { createSwaggerSpec } from "next-swagger-doc";
 import { NextResponse } from "next/server";
+import path from "path";
 
 export async function GET() {
   const spec = createSwaggerSpec({
-    // Changed to scan only v1 folder
-    apiFolder: "app/api/v1",
-
+    apiFolder: path.join("app", "api", "v1"),
+    apiFilePattern: "**/*.ts",
     definition: {
       openapi: "3.0.0",
       info: {
@@ -21,13 +22,17 @@ export async function GET() {
       },
       servers: [
         {
+          url: "https://miadp-fmr-integration.vercel.app",
+          description: "Vercel Production",
+        },
+        {
           url: "http://localhost:3000",
           description: "Local development",
         },
-        {
-          url: "https://fmr-integration.miadp.ph",
-          description: "Production",
-        },
+        // {
+        //   url: "https://fmr-integration.miadp.ph",
+        //   description: "MIADP Production Server",
+        // }
       ],
       components: {
         securitySchemes: {
@@ -56,5 +61,9 @@ export async function GET() {
     },
   });
 
-  return NextResponse.json(spec);
+  return withCors(NextResponse.json(spec));
+}
+
+export async function OPTIONS() {
+  return withCors(new NextResponse(null, { status: 204 }));
 }
