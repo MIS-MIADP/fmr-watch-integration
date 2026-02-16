@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { withApiKey } from "@/lib/api-key-middleware";
 import { prisma } from "@/lib/prisma";
-import { withCors } from "@/lib/cors";
 
 /**
  * @swagger
@@ -10,7 +9,7 @@ import { withCors } from "@/lib/cors";
  *     summary: Get Subprojects (FMR Watch Integration)
  *     description: |
  *       Protected endpoint for MIADP ↔ FMR Watch integration.
- *       Returns a list of subprojects ordered by creation date (latest first).
+ *       Returns a list of subprojects with their progress reports.
  *     tags:
  *       - FMR Watch Integration
  *     security:
@@ -32,7 +31,6 @@ import { withCors } from "@/lib/cors";
  *                 timestamp:
  *                   type: string
  *                   format: date-time
- *                   example: 2026-02-13T08:30:00.000Z
  *                 data:
  *                   type: array
  *                   items:
@@ -41,85 +39,60 @@ import { withCors } from "@/lib/cors";
  *                       id:
  *                         type: string
  *                         format: uuid
- *                         example: 9c3d6c2a-1f2e-4f10-8c72-7fbc0f9b7c11
  *                       code:
  *                         type: string
- *                         example: FMR-2026-001
  *                       title:
  *                         type: string
- *                         example: Farm-to-Market Road Improvement
- *
  *                       ancestralDomain:
  *                         type: string
  *                         nullable: true
- *                         example: CADT Area Name
  *                       cadtNumber:
  *                         type: string
  *                         nullable: true
- *                         example: CADT-1234
  *                       location:
  *                         type: string
  *                         nullable: true
- *                         example: Barangay San Isidro
- *
  *                       description:
  *                         type: string
  *                         nullable: true
- *                       scopeOfWorks:
- *                         type: string
- *                         nullable: true
- *
  *                       targetLength:
  *                         type: number
  *                         format: decimal
  *                         nullable: true
- *                         example: 1.25
  *                       unitOfMeasure:
  *                         type: string
  *                         nullable: true
- *                         example: km
- *
  *                       sourceOfFund:
  *                         type: string
  *                         nullable: true
- *                         example: DA-MIADP
  *                       yearFunded:
  *                         type: integer
  *                         nullable: true
- *                         example: 2026
  *                       totalBudget:
  *                         type: number
  *                         format: decimal
  *                         nullable: true
- *                         example: 1500000
  *                       approvedBudget:
  *                         type: number
  *                         format: decimal
  *                         nullable: true
- *                         example: 1450000
- *
  *                       implementingAgency:
  *                         type: string
  *                         nullable: true
  *                       contractor:
  *                         type: string
  *                         nullable: true
- *
  *                       latitude:
  *                         type: number
  *                         format: decimal
  *                         nullable: true
- *                         example: 7.1907083
  *                       longitude:
  *                         type: number
  *                         format: decimal
  *                         nullable: true
- *                         example: 125.4553417
- *
  *                       duration:
  *                         type: integer
  *                         nullable: true
- *                         example: 120
  *                       startDate:
  *                         type: string
  *                         format: date-time
@@ -132,57 +105,63 @@ import { withCors } from "@/lib/cors";
  *                         type: string
  *                         format: date-time
  *                         nullable: true
- *
+ *                       scopeOfWorks:
+ *                         type: string
+ *                         nullable: true
  *                       status:
  *                         type: string
- *                         example: Planned
- *
  *                       createdAt:
  *                         type: string
  *                         format: date-time
  *                       updatedAt:
  *                         type: string
  *                         format: date-time
- *
+ *                       progressReports:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             id:
+ *                               type: string
+ *                               format: uuid
+ *                             reportDate:
+ *                               type: string
+ *                               format: date
+ *                               nullable: true
+ *                             targetProgress:
+ *                               type: number
+ *                               format: float
+ *                               nullable: true
+ *                             actualProgress:
+ *                               type: number
+ *                               format: float
+ *                               nullable: true
  *       401:
  *         description: Missing or invalid API key
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: Invalid API key
- *
  *       403:
  *         description: API key is deactivated
- *
  *       500:
  *         description: Failed to fetch subprojects
  */
+
 export async function GET(request: Request) {
-  // 1. Authenticate with Middleware
   const authError = await withApiKey(request as any);
   if (authError) return authError;
 
   try {
-    // 2. Fetch data from the database
     const subprojects = await prisma.subproject.findMany({
+      include: { progressReports: true },
       orderBy: {
-        createdAt: 'desc',
+        code: 'desc',
       },
     });
 
-    // 3. Return the response
-     return withCors(
-    NextResponse.json({
+    return NextResponse.json({
       success: true,
       count: subprojects.length,
       timestamp: new Date().toISOString(),
       data: subprojects,
     })
-    );
     
   } catch (error) {
     console.error("Database Error:", error);
@@ -193,5 +172,5 @@ export async function GET(request: Request) {
   }
 }
 export async function OPTIONS() {
-  return withCors(new NextResponse(null, { status: 204 }));
+  return new NextResponse(null, { status: 204 })
 }
