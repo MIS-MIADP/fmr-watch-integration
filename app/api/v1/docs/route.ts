@@ -57,11 +57,7 @@ export async function GET() {
         //   description: "Basic health checks and diagnostics",
         // },
       ],
-    },
-    apis: [
-      "./app/api/**/*.ts", 
-      "./lib/swagger/schema/*.ts" 
-    ],
+    }
   });
 
   return NextResponse.json(spec);
