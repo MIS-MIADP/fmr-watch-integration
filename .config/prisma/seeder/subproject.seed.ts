@@ -37,16 +37,15 @@ function toDecimal(value: any): Prisma.Decimal | null {
 }
 
 function toFloat(value: any): number | null {
-  const v = clean(value)
-  if (!v) return null
+  const v = clean(value);
+  if (!v) return null;
 
   // Remove % if present
-  const normalized = v.replace("%", "").trim()
+  const normalized = v.replace("%", "").trim();
 
-  const n = parseFloat(normalized)
-  return isNaN(n) ? null : n
+  const n = parseFloat(normalized);
+  return isNaN(n) ? null : n;
 }
-
 
 function toDate(value: any): Date | null {
   const v = clean(value);
@@ -54,6 +53,27 @@ function toDate(value: any): Date | null {
 
   const d = new Date(v);
   return isNaN(d.getTime()) ? null : d;
+}
+
+function toCommaArray(value: any): string[] {
+  const v = clean(value);
+  if (!v) return [];
+  return v
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function safeJsonParse(value: any): any[] {
+  const v = clean(value);
+  if (!v) return [];
+  try {
+    const parsed = JSON.parse(v);
+    return Array.isArray(parsed) ? parsed : [parsed];
+  } catch (e) {
+    console.warn(`⚠️ Failed to parse JSON: ${v.substring(0, 30)}...`);
+    return [];
+  }
 }
 
 async function seedFromCsv(csvPath: string) {
@@ -72,8 +92,8 @@ async function seedFromCsv(csvPath: string) {
 
   let created = 0;
   let warnings = 0;
-  let progressCreated = 0
-  let progressUpdated = 0
+  let progressCreated = 0;
+  let progressUpdated = 0;
 
   for (const row of records) {
     const code = clean(row["Subproject ID"]);
@@ -84,112 +104,132 @@ async function seedFromCsv(csvPath: string) {
     }
 
     try {
-      const title = clean(row["Title"]) ?? "";
-      const ancestralDomain = clean(row["Ancestral Domain"]);
-      const cadtNumber = clean(row["CADT Number"]);
-      const region = clean(row["Region"]);
-      const province = clean(row["Province"]);
-      const municipality = clean(row["Municipality"]);
-      const barangay = clean(row["Barangay"]);
-      const description = clean(row["Subproject Description"]);
-      const scopeOfWorks = clean(row["Scope of Works"]);
-      const targetLength = toDecimal(row["Target Length"]);
-      const unitOfMeasure = clean(row["Unit of Measure"]);
-      const sourceOfFund = clean(row["Source of Fund"]);
-      const yearFunded = toInt(row["Year Funded"]);
-      const totalBudget = toDecimal(row["Total Budget"]);
-      const approvedBudget = toDecimal( row["Approved Budget for Contract (ABC)"], );
-      const implementingAgency = clean(row["Implementing Agency (LGU/PLGU)"]);
-      const contractor = clean(row["Contractor"]);
-      const latitude = toDecimal(row["Latitude"]);
-      const longitude = toDecimal(row["Longitutde"]);
-      const duration = toInt(row["Duration"]);
-      const startDate = toDate(row["Start Date"]);
-      const targetCompletionDate = toDate(row["Target Completion Date"]);
-      const actualCompletionDate = toDate(row["Actual Completion Date"]);
-      const status = clean(row["Status"]);
+      const geotags = safeJsonParse(row["Geotag"]); //JSON Array Object { id, url, latiture, longiture, timestamp, category }
+      const kmlValue = clean(row["KML"]); //string
+      const docs = safeJsonParse(row["Documents"]); //JSON Array Object { name, attachment }
+      const pows = safeJsonParse(row["POW Details"]); //JSON Array Object { name, attachment, date, target, actual }
+      const procs = safeJsonParse(row["Procurement"]); //JSON Array Object { name, url }
 
-      const reportDate = toDate(clean(row["As of Report Date"]))
-      const targetProgress = toFloat(clean(row["Target Progress %"]))
-      const actualProgress = toFloat(clean(row["Actual Progress %"]))
+      const subprojectData = {
+        title: clean(row["Project Name"]) ?? "Title",
+        description: clean(row["Description"]),
+        status: clean(row["Status"]) ?? "Planned",
+        stage: clean(row["Stage"]),
 
-      const dataInput = {
-          title,
-          ancestralDomain,
-          cadtNumber,
-          region,
-          province,
-          municipality,
-          barangay,
-          description,
-          scopeOfWorks,
-          targetLength,
-          unitOfMeasure,
-          sourceOfFund,
-          yearFunded,
-          totalBudget,
-          approvedBudget,
-          implementingAgency,
-          contractor,
-          latitude,
-          longitude,
-          duration,
-          startDate,
-          targetCompletionDate,
-          actualCompletionDate,
-          status,
-      }
+        // Domain
+        ancestralDomain: clean(row["Ancestral Domain"]),
+        cadtNumber: clean(row["CADT Number"]),
 
-      const subproject = await prisma.subproject.upsert({
-        where: { code },
-        update: dataInput,
-        create: {
-          code,
-          ...dataInput
+        // Location
+        region: clean(row["Region"]),
+        province: clean(row["Province"]),
+        municipality: clean(row["Municipality"]),
+        barangay: clean(row["Barangay"]),
+        psgcCode: clean(row["PSGC Code"]),
+        latitude: toDecimal(row["Latitude"]),
+        longitude: toDecimal(row["Longitude"]),
+
+        // Physical
+        proposedLength: toDecimal(row["Prop. Length"]),
+        actualLength: toDecimal(row["Act. Length"]),
+        designLength: toDecimal(row["Design Length"]),
+        unitOfMeasure: clean(row["Unit"]),
+        roadClass: clean(row["Road Class"]),
+        roadType: clean(row["Road Type"]),
+
+        // Funding
+        totalBudget: toDecimal(row["Budget"]),
+        approvedBudget: toDecimal(row["ABC"]),
+        operatingUnit: clean(row["Operating Unit"]),
+        yearFunded: toInt(row["Year"]),
+        sourceOfFund: clean(row["Fund"]),
+
+        // Timeline
+        contractor: clean(row["Contractor"]),
+        duration: toInt(row["Calendar Days"]),
+        startDate: toDate(row["Start Date"]),
+        endDate: toDate(row["End Date"]),
+        targetCompletionDate: toDate(row["Target Completion Date"]),
+
+        // Arrays
+        commodities: toCommaArray(row["Commodities"]),
+      };
+
+      const geotagData = geotags.map((g: any) => ({
+        externalId: g.id,
+        url: g.url,
+        latitude: new Prisma.Decimal(g.latitude),
+        longitude: new Prisma.Decimal(g.longitude),
+        timestamp: new Date(g.timestamp),
+        category: g.category,
+      }));
+
+      const documentData = docs.map((d: any) => ({
+        name: d.name,
+        attachment: d.attachment,
+      }));
+
+      const powData = pows.map((p: any) => ({
+        name: p.name,
+        attachment: p.attachment,
+        date: p.date,
+        target: String(p.target || ""),
+        actual: String(p.actual || ""),
+      }));
+
+      const procData = procs.map((p: any) => ({
+        name: p.name,
+        url: p.url,
+      }));
+
+      await prisma.subproject.upsert({
+  where: { code },
+  update: {
+    ...subprojectData,
+    metadata: {
+      upsert: {
+        update: {
+          kml: kmlValue,
+          geotags: { deleteMany: {}, create: geotagData, },
+          documents: { deleteMany: {}, create: documentData, },
+          powDetails: { deleteMany: {}, create: powData, },
+          procurementDetails: { deleteMany: {}, create: procData, },
         },
-      });
+        create: {
+          kml: kmlValue,
+          geotags: { create: geotagData, },
+          documents: { create: documentData, },
+        },
+      },
+    },
+  },
+  create: {
+    code,
+    ...subprojectData,
+    metadata: {
+      create: {
+        kml: kmlValue,
+        geotags: { create: geotagData, },
+        documents: { create: documentData, },
+        powDetails: { create: powData, },
+        procurementDetails: { create: procData, },
+      },
+    },
+  },
+});
 
       created++;
-
-if (reportDate) {
-        const existingReport = await prisma.progressReport.findUnique({
-          where: {
-            subprojectId_reportDate: {
-              subprojectId: subproject.id,
-              reportDate,
-            },
-          },
-        })
-
-        if (existingReport) {
-          await prisma.progressReport.update({
-            where: { id: existingReport.id },
-            data: { targetProgress, actualProgress },
-          })
-          progressUpdated++
-        } else {
-          await prisma.progressReport.create({
-            data: {
-              subprojectId: subproject.id,
-              reportDate,
-              targetProgress,
-              actualProgress,
-            },
-          })
-          progressCreated++
-        }
-      }
-
-
     } catch (err) {
       warnings++;
       console.log(`Failed to import ${code}`, err);
     }
   }
   console.log("===================================");
-  console.log(`Subprojects Created/Updated: ${created}`)
-  console.log(`Progress Reports Created: ${progressCreated}, Updated: ${progressUpdated}`)
-  console.log(`Warnings: ${warnings}`)
+  console.log(`Subprojects Created/Updated: ${created}`);
+  console.log(
+    `Progress Reports Created: ${progressCreated}, Updated: ${progressUpdated}`,
+  );
+  console.log(`Warnings: ${warnings}`);
 }
 
 async function main() {

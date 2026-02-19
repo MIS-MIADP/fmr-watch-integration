@@ -1,65 +1,109 @@
 model Subproject {
-  id           String   @id @default(cuid())
-
-  // Identification
-  code                  String   @unique // Subproject ID
-  title                 String
+  id                   String    @id @default(cuid())
+  code                 String    @unique // Subproject ID
+  title                String    
+  description          String?   @db.Text
+  status               String?   @default("Planned")
+  stage                String?   
 
   // Domain Information
-  ancestralDomain       String?  // name of CADT area
-  cadtNumber            String?
-  region                String?
-  province              String?
-  municipality          String?
-  barangay              String?
+  ancestralDomain      String?   
+  cadtNumber           String?   
 
-  // Description
-  description           String?  @db.Text
+  // Location Details
+  region               String?
+  province             String?
+  municipality         String?
+  barangay             String?
+  psgcCode             String?   
+  latitude             Decimal?  @db.Decimal(10, 7)
+  longitude            Decimal?  @db.Decimal(10, 7)
 
   // Physical Details
-  targetLength          Decimal? @db.Decimal(12,2)
-  unitOfMeasure         String?
+  proposedLength       Decimal?  @db.Decimal(12, 2)
+  actualLength         Decimal?  @db.Decimal(12, 2)
+  designLength         Decimal?  @db.Decimal(12, 2)
+  unitOfMeasure        String?   
+  roadClass            String?
+  roadType             String?
 
   // Funding
-  sourceOfFund          String?
-  yearFunded            Int?
-  totalBudget           Decimal? @db.Decimal(15,2)
-  approvedBudget        Decimal? @db.Decimal(15,2)
+  sourceOfFund         String?
+  yearFunded           Int?
+  totalBudget          Decimal?  @db.Decimal(15, 2)
+  approvedBudget       Decimal?  @db.Decimal(15, 2) // ABC
+  operatingUnit        String?
 
   // Implementation
-  implementingAgency    String?
-  contractor            String?
+  contractor           String?
+  duration             Int?      // calendar_days
+  startDate            DateTime?
+  endDate              DateTime?
+  targetCompletionDate DateTime?
+  commodities          String[]  // Supported in PostgreSQL/MongoDB
 
-  // GIS (for maps)
-  latitude              Decimal? @db.Decimal(10,7)
-  longitude             Decimal? @db.Decimal(10,7)
-
-  // Timeline
-  duration              Int?     // number of days
-  startDate             DateTime?
-  targetCompletionDate  DateTime?
-  actualCompletionDate  DateTime?
-  scopeOfWorks          String?  @db.Text
-
-  // Status
-  status                String? @default("Planned")
-
-  progressReports     ProgressReport[]
+  // Metadata Link
+  metadata             Metadata?
 
   // System
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 }
 
-model ProgressReport {
-  id           String   @id @default(cuid())
+model Metadata {
+  id                 String              @id @default(cuid())
+  kml                String?
+  
+  // Relations to nested objects
+  geotags            Geotag[]
+  documents          Document[]
+  powDetails         PowDetail[]
+  procurementDetails ProcurementDetail[]
 
-  reportDate  DateTime? @db.Date
-  targetProgress  Float?
-  actualProgress  Float?
+  // Relation to Subproject
+  subprojectId       String              @unique
+  subproject         Subproject          @relation(fields: [subprojectId], references: [id], onDelete: Cascade)
+}
 
-  subprojectId  String
-  subproject   Subproject @relation(fields: [subprojectId], references: [id], onDelete: Cascade)
+model Geotag {
+  id         String   @id @default(cuid())
+  externalId String?  // Stores "photo-1"
+  url        String
+  latitude   Decimal  @db.Decimal(10, 7)
+  longitude  Decimal  @db.Decimal(10, 7)
+  timestamp  DateTime
+  category   String?  // Validation, Progress, etc.
 
-  @@unique([subprojectId, reportDate])
+  metadataId String
+  metadata   Metadata @relation(fields: [metadataId], references: [id], onDelete: Cascade)
+}
+
+model Document {
+  id         String   @id @default(cuid())
+  name       String
+  attachment String   // URL
+
+  metadataId String
+  metadata   Metadata @relation(fields: [metadataId], references: [id], onDelete: Cascade)
+}
+
+model PowDetail {
+  id         String   @id @default(cuid())
+  name       String
+  attachment String
+  date       String?  // Stored as string to match "02-15-2025"
+  target     String?
+  actual     String?
+
+  metadataId String
+  metadata   Metadata @relation(fields: [metadataId], references: [id], onDelete: Cascade)
+}
+
+model ProcurementDetail {
+  id         String   @id @default(cuid())
+  name       String
+  url        String
+
+  metadataId String
+  metadata   Metadata @relation(fields: [metadataId], references: [id], onDelete: Cascade)
 }
