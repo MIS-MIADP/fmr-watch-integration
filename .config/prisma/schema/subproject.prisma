@@ -1,20 +1,23 @@
 model Subproject {
-  id           String   @id @default(cuid())
-
-  // Identification
-  code                  String   @unique // Subproject ID
-  title                 String
+  id                   String    @id @default(cuid())
+  code                 String    @unique // Subproject ID
+  title                String    
+  description          String?   @db.Text
+  status               String?   @default("Planned")
+  stage                String?   
 
   // Domain Information
-  ancestralDomain       String?  // name of CADT area
-  cadtNumber            String?
-  region                String?
-  province              String?
-  municipality          String?
-  barangay              String?
+  ancestralDomain      String?   
+  cadtNumber           String?   
 
-  // Description
-  description           String?  @db.Text
+  // Location Details
+  region               String?
+  province             String?
+  municipality         String?
+  barangay             String?
+  psgcCode             String?   
+  latitude             Decimal?  @db.Decimal(10, 7)
+  longitude            Decimal?  @db.Decimal(10, 7)
 
   // Physical Details
   proposedLength       Decimal?  @db.Decimal(12, 2)
@@ -39,19 +42,8 @@ model Subproject {
   targetCompletionDate DateTime?
   commodities          String[]  // Supported in PostgreSQL/MongoDB
 
-  // GIS (for maps)
-  latitude              Decimal? @db.Decimal(10,7)
-  longitude             Decimal? @db.Decimal(10,7)
-
-  // Timeline
-  duration              Int?     // number of days
-  startDate             DateTime?
-  targetCompletionDate  DateTime?
-  actualCompletionDate  DateTime?
-  scopeOfWorks          String?  @db.Text
-
-  // Status
-  status                String? @default("Planned")
+  // Metadata Link
+  metadata             Metadata?
 
   // System
   createdAt            DateTime  @default(now())
