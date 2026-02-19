@@ -132,6 +132,7 @@ async function seedFromCsv(csvPath: string) {
         // Physical
         proposedLength: toDecimal(row["Prop. Length"]),
         actualLength: toDecimal(row["Act. Length"]),
+        designLength: toDecimal(row["Design Length"]),
         unitOfMeasure: clean(row["Unit"]),
         roadClass: clean(row["Road Class"]),
         roadType: clean(row["Road Type"]),
@@ -145,6 +146,7 @@ async function seedFromCsv(csvPath: string) {
 
         // Timeline
         contractor: clean(row["Contractor"]),
+        duration: toInt(row["Calendar Days"]),
         startDate: toDate(row["Start Date"]),
         endDate: toDate(row["End Date"]),
         targetCompletionDate: toDate(row["Completion Date"]),
