@@ -53,8 +53,6 @@ model Subproject {
   // Status
   status                String? @default("Planned")
 
-  progressReports     ProgressReport[]
-
   // System
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
@@ -116,17 +114,4 @@ model ProcurementDetail {
 
   metadataId String
   metadata   Metadata @relation(fields: [metadataId], references: [id], onDelete: Cascade)
-}
-
-model ProgressReport {
-  id           String   @id @default(cuid())
-
-  reportDate  DateTime? @db.Date
-  targetProgress  Float?
-  actualProgress  Float?
-
-  subprojectId  String
-  subproject   Subproject @relation(fields: [subprojectId], references: [id], onDelete: Cascade)
-
-  @@unique([subprojectId, reportDate])
 }
