@@ -52,12 +52,16 @@ export async function GET() {
           name: "FMR Watch Integration",
           description: "Endpoints specific to MIAPD ↔ FMR Watch data exchange",
         },
-        {
-          name: "Health & Status",
-          description: "Basic health checks and diagnostics",
-        },
+        // {
+        //   name: "Health & Status",
+        //   description: "Basic health checks and diagnostics",
+        // },
       ],
     },
+    apis: [
+      "./app/api/**/*.ts", 
+      "./lib/swagger/schema/*.ts" 
+    ],
   });
 
   return NextResponse.json(spec);
