@@ -36,6 +36,7 @@ import { prisma } from "@/lib/prisma";
  *       500:
  *         description: Failed to fetch subprojects
  */
+
 export async function GET(request: Request) {
   const authError = await withApiKey(request as any);
   if (authError) return authError;

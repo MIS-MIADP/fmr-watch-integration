@@ -149,7 +149,7 @@ async function seedFromCsv(csvPath: string) {
         duration: toInt(row["Calendar Days"]),
         startDate: toDate(row["Start Date"]),
         endDate: toDate(row["End Date"]),
-        targetCompletionDate: toDate(row["Completion Date"]),
+        targetCompletionDate: toDate(row["Target Completion Date"]),
 
         // Arrays
         commodities: toCommaArray(row["Commodities"]),
