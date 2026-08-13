@@ -46,34 +46,51 @@ export type TNormalizedSubproject = {
   id: string
   code: string
   title: string
-  description: string
+  description: string | null
   status: string
-  stage: string
-  region: string
-  province: string
-  municipality: string
-  barangay: string
-  psgcCode: string
-  latitude: number
-  longitude: number
-  proposedLength: number
-  actualLength: number
-  designLength: number
-  unitOfMeasure: string
-  sourceOfFund: string
-  yearFunded: number
-  totalBudget: number
-  approvedBudget: number
-  contractor: string
+  stage: string | null
+
+  // Domain Information
+  ancestralDomain: string | null
+  cadtNumber: string | null
+
+  // Location Details
+  region: string | null
+  province: string | null
+  municipality: string | null
+  barangay: string | null
+  psgcCode: string | null
+  latitude: number | null
+  longitude: number | null
+
+  // Physical Details
+  proposedLength: number | null
+  actualLength: number | null
+  designLength: number | null
+  unitOfMeasure: string | null
+  roadClass: string | null
+  roadType: string | null
+
+  // Funding
+  sourceOfFund: string | null
+  yearFunded: number | null
+  totalBudget: number | null
+  approvedBudget: number | null
+  operatingUnit: string | null
+
+  // Implementation
+  contractor: string | null
   duration: number | null
-  revisedDuration: number
+  revisedDuration: number | null
   startDate: string | null
   endDate: string | null
   targetCompletionDate: string | null
   revisedTargetCompletionDate: string | null
   commodities: string[]
+
+  // Metadata
   metadata: {
-    kml: string
+    kml: string | null
     geotags: any[]
     documents: any[]
     powDetails: any[]
@@ -81,47 +98,65 @@ export type TNormalizedSubproject = {
   }
 }
 
+function parseDecimal(val: string): number | null {
+  if (!val) return null
+  return parseFloat(val.replace(/,/g, ""))
+}
+
+
 // Normalizer function
 function normalizeSubproject(item: TInfraSubproject): TNormalizedSubproject {
   return {
     id: item.id,
-    code: item.cadtNumber ?? "",
+    code: item.id, 
     title: item.projectName,
-    description: item.description,
+    description: item.description || null,
     status: item.status,
-    stage: item.stage,
-    region: item.region,
-    province: item.province,
-    municipality: item.municipality,
-    barangay: item.barangay,
-    psgcCode: item.psgcCode,
-    latitude: parseFloat(item.latitude) || 0,
-    longitude: parseFloat(item.longitude) || 0,
-    proposedLength: parseFloat(item.proposedLength) || 0,
-    actualLength: parseFloat(item.actualLength) || 0,
-    designLength: parseFloat(item.designLength) || 0,
-    unitOfMeasure: item.unit,
-    sourceOfFund: item.fund,
-    yearFunded: parseInt(item.year) || 0,
-    totalBudget: parseFloat(item.budget.replace(/,/g, "")) || 0,
-    approvedBudget: parseFloat(item.abc.replace(/,/g, "")) || 0,
-    contractor: item.contractor,
-    duration: parseInt(item.calendarDays) || 0,
-    revisedDuration: parseInt(item.revisedCalendarDays) || 0,
+    stage: item.stage || null,
+
+    ancestralDomain: item.ancestralDomain || null,
+    cadtNumber: item.cadtNumber || null,
+
+    region: item.region || null,
+    province: item.province || null,
+    municipality: item.municipality || null,
+    barangay: item.barangay || null,
+    psgcCode: item.psgcCode || null,
+    latitude: parseDecimal(item.latitude),
+    longitude: parseDecimal(item.longitude),
+
+    proposedLength: parseDecimal(item.proposedLength),
+    actualLength: parseDecimal(item.actualLength),
+    designLength: parseDecimal(item.designLength),
+    unitOfMeasure: item.unit || null,
+    roadClass: item.roadClass || null,
+    roadType: item.roadType || null,
+
+    sourceOfFund: item.fund || null,
+    yearFunded: parseInt(item.year) || null,
+    totalBudget: parseDecimal(item.budget),
+    approvedBudget: parseDecimal(item.abc),
+    operatingUnit: item.operatingUnit || null,
+
+    contractor: item.contractor || null,
+    duration: parseInt(item.calendarDays) || null,
+    revisedDuration: parseInt(item.revisedCalendarDays) || null,
     startDate: item.startDate ? new Date(item.startDate).toISOString() : null,
     endDate: item.endDate ? new Date(item.endDate).toISOString() : null,
     targetCompletionDate: item.targetCompletionDate ? new Date(item.targetCompletionDate).toISOString() : null,
     revisedTargetCompletionDate: item.revisedTargetCompletionDate ? new Date(item.revisedTargetCompletionDate).toISOString() : null,
     commodities: item.commodities ? item.commodities.split(",").map(c => c.trim()) : [],
+
     metadata: {
-      kml: item.kml,
-      geotags: [],
+      kml: item.kml || null,
+      geotags: [], // parse if sheet provides JSON
       documents: [],
       powDetails: [],
       procurementDetails: []
     }
   }
 }
+
 
 export async function fetchGoogleSheetInfraSubprojects() {
   const url = process.env.FMR_LIST_GSHEET ?? ""
