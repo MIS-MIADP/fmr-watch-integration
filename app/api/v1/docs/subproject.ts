@@ -1,3 +1,4 @@
+
 /**
  * @swagger
  * components:
@@ -107,6 +108,13 @@
  *           type: string
  *           nullable: true
  *
+ *         ancestralDomain:
+ *           type: string
+ *           nullable: true
+ *         cadtNumber:
+ *           type: string
+ *           nullable: true
+ *
  *         region:
  *           type: string
  *           nullable: true
@@ -144,6 +152,12 @@
  *         unitOfMeasure:
  *           type: string
  *           nullable: true
+ *         roadClass:
+ *           type: string
+ *           nullable: true
+ *         roadType:
+ *           type: string
+ *           nullable: true
  *
  *         sourceOfFund:
  *           type: string
@@ -157,11 +171,17 @@
  *         approvedBudget:
  *           type: number
  *           nullable: true
+ *         operatingUnit:
+ *           type: string
+ *           nullable: true
  *
  *         contractor:
  *           type: string
  *           nullable: true
  *         duration:
+ *           type: integer
+ *           nullable: true
+ *         revisedDuration:
  *           type: integer
  *           nullable: true
  *
@@ -174,6 +194,10 @@
  *           format: date-time
  *           nullable: true
  *         targetCompletionDate:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *         revisedTargetCompletionDate:
  *           type: string
  *           format: date-time
  *           nullable: true
