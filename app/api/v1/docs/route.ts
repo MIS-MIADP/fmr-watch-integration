@@ -25,12 +25,12 @@ export async function GET() {
           description: "MIADP FRM API",
         },
         // {
-        //   url: "https://miadp-fmr-integration.vercel.app",
-        //   description: "Vercel Production",
-        // },
-        // {
         //   url: "http://localhost:3000",
         //   description: "Local development",
+        // },
+        // {
+        //   url: "https://miadp-fmr-integration.vercel.app",
+        //   description: "Vercel Production",
         // },
         // {
         //   url: "https://fmr-integration.miadp.ph",
