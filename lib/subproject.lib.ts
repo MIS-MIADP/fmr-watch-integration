@@ -170,7 +170,7 @@ export async function fetchGoogleSheetInfraSubprojects() {
       kml: item["KML"]
     }),
     {
-      range: "A1:AK",
+      range: "A1:AM",
       dataRowStart: 1
     }
   )
