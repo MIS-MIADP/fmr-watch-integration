@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { withApiKey } from "@/lib/api-key-middleware";
 import { prisma } from "@/lib/prisma";
+import { fetchGoogleSheetInfraSubprojects } from "@/lib/subproject.lib";
 
 /**
  * @swagger
@@ -42,21 +43,22 @@ export async function GET(request: Request) {
   if (authError) return authError;
 
   try {
-    const subprojects = await prisma.subproject.findMany({
-      include: {
-        metadata: {
-          include: {
-            geotags: true,
-            documents: true,
-            powDetails: true,
-            procurementDetails: true,
-          },
-        },
-      },
-      orderBy: {
-        code: 'desc',
-      },
-    });
+    const subprojects = await fetchGoogleSheetInfraSubprojects()
+    // const subprojects = await prisma.subproject.findMany({
+    //   include: {
+    //     metadata: {
+    //       include: {
+    //         geotags: true,
+    //         documents: true,
+    //         powDetails: true,
+    //         procurementDetails: true,
+    //       },
+    //     },
+    //   },
+    //   orderBy: {
+    //     code: 'desc',
+    //   },
+    // });
 
     return NextResponse.json({
       success: true,

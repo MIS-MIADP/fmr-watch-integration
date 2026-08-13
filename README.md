@@ -34,3 +34,75 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+# SubProject Template
+
+```json
+{
+  "name": "Subproject Name",
+  "description": "Brief description of the subproject",
+  "status": "Ongoing | Completed | Not yet started",
+  "region": "Region Code",
+  "province": "Province Name",
+  "municipality": "Municipality/City Name",
+  "barangay": "Barangay Name",
+  "latitude": 0.000,
+  "longitude": 0.000,
+  "budget": 0.00,
+  "abc": 0.00,
+  "operating_unit": "Operating Unit Name",
+  "year_funded": "YYYY",
+  "stage": "Completed | Implementation | Procurement | Pre-Implementation",
+  "contractor_name": "Contractor Name",
+  "target_completion_date": "YYYY-MM-DDT00:00:00.000Z",
+  "proposed_length": "0.0",
+  "actual_length": "0.0",
+  "design_length": "0.0",
+  "quantity_unit": "km | m | ha",
+  "psgc_code": "PSGC Code",
+  "road_class": "Barangay Road | Provincial Road | National Road",
+  "road_type": "Concrete | Asphalt | Earth Road",
+  "start_date": "YYYY-MM-DDT00:00:00.000Z",
+  "end_date": "YYYY-MM-DDT00:00:00.000Z",
+  "calendar_days": "0",
+  "fund_source": "Funding Agency",
+  "commodities": [
+    "Commodity 1",
+    "Commodity 2"
+  ],
+  "metadata": {
+    "geotag": [
+      {
+        "id": "photo-id",
+        "url": "https://example.com/photo.jpg",
+        "latitude": "0.0000",
+        "longitude": "0.0000",
+        "timestamp": "YYYY-MM-DDTHH:mm:ssZ",
+        "category": "Validation | Progress | Completed"
+      }
+    ],
+    "kml": "https://example.com/project.kml",
+    "documents": [
+      {
+        "name": "Document Name",
+        "attachment": "https://example.com/document.pdf"
+      }
+    ],
+    "pow_details": [
+      {
+        "name": "Program of Works",
+        "attachment": "https://example.com/pow.pdf",
+        "date": "MM-DD-YYYY",
+        "target": "0",
+        "actual": "0"
+      }
+    ],
+    "procurement_details": [
+      {
+        "name": "Procurement",
+        "url": "https://example.com/procurement.pdf"
+      }
+    ]
+  }
+}
